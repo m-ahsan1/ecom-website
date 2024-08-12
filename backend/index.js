@@ -70,6 +70,7 @@ const Product = mongoose.model("Product", {
   description: { type: String, required: true },
   image: { type: String, required: true },
   category: { type: String, required: true },
+  type: { type: String },
   new_price: { type: Number },
   old_price: { type: Number },
   date: { type: Date, default: Date.now },
@@ -99,20 +100,16 @@ app.post("/login", async (req, res) => {
       const token = jwt.sign(data, "secret_ecom");
       res.json({ success, token });
     } else {
-      return res
-        .status(400)
-        .json({
-          success: success,
-          errors: "please try with correct email/password",
-        });
-    }
-  } else {
-    return res
-      .status(400)
-      .json({
+      return res.status(400).json({
         success: success,
         errors: "please try with correct email/password",
       });
+    }
+  } else {
+    return res.status(400).json({
+      success: success,
+      errors: "please try with correct email/password",
+    });
   }
 });
 
@@ -122,12 +119,10 @@ app.post("/signup", async (req, res) => {
   let success = false;
   let check = await Users.findOne({ email: req.body.email });
   if (check) {
-    return res
-      .status(400)
-      .json({
-        success: success,
-        errors: "existing user found with this email",
-      });
+    return res.status(400).json({
+      success: success,
+      errors: "existing user found with this email",
+    });
   }
   let cart = {};
   for (let i = 0; i < 300; i++) {
@@ -233,11 +228,13 @@ app.post("/addproduct", async (req, res) => {
     description: req.body.description,
     image: req.body.image,
     category: req.body.category,
+    type: req.body.type,
     new_price: req.body.new_price,
     old_price: req.body.old_price,
   });
   await product.save();
   console.log("Saved");
+  console.log(product, req.body);
   res.json({ success: true, name: req.body.name });
 });
 
