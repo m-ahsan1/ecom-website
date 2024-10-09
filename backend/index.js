@@ -5,20 +5,20 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
+const nodemailer = require("nodemailer");
 const port = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(cors());
 
-// Database Connection With MongoDB
-mongoose.connect(
-  "mongodb+srv://ahsank0811:KX9f3SjYk3PoLuct@kooglecluster0.xsmaexw.mongodb.net/"
-);
+mongoose
+  .connect(
+    "mongodb+srv://ahsank0811:KX9f3SjYk3PoLuct@kooglecluster0.xsmaexw.mongodb.net/",
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
-// paste your mongoDB Connection string above with password
-// password should not contain '@' special character
-
-//Image Storage Engine
 const storage = multer.diskStorage({
   destination: "./upload/images",
   filename: (req, file, cb) => {
@@ -60,29 +60,14 @@ const Users = mongoose.model("Users", {
   email: { type: String, unique: true },
   password: { type: String },
   cartData: { type: Object },
+  isAdmin: { type: Boolean, default: false },
   date: { type: Date, default: Date.now() },
 });
 
-// Schema for creating Product
-const Product = mongoose.model("Product", {
-  id: { type: Number, required: true },
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  image: { type: String, required: true },
-  category: { type: String, required: true },
-  type: { type: String },
-  new_price: { type: Number },
-  old_price: { type: Number },
-  date: { type: Date, default: Date.now },
-  avilable: { type: Boolean, default: true },
-});
-
-// ROOT API Route For Testing
 app.get("/", (req, res) => {
   res.send("Root");
 });
 
-// Create an endpoint at ip/login for login the user and giving auth-token
 app.post("/login", async (req, res) => {
   console.log("Login");
   let success = false;
@@ -238,14 +223,247 @@ app.post("/addproduct", async (req, res) => {
   res.json({ success: true, name: req.body.name });
 });
 
-// Create an endpoint for removing products using admin panel
 app.post("/removeproduct", async (req, res) => {
   await Product.findOneAndDelete({ id: req.body.id });
   console.log("Removed");
   res.json({ success: true, name: req.body.name });
 });
 
-// Starting Express Server
+const Review = mongoose.model("Review", {
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+    required: true,
+  },
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true,
+  },
+  rating: { type: Number, required: true, min: 1, max: 5 },
+  comment: { type: String, required: true },
+  date: { type: Date, default: Date.now },
+});
+
+const Order = mongoose.model("Order", {
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Users",
+    required: true,
+  },
+  products: [
+    {
+      productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product" },
+      quantity: Number,
+    },
+  ],
+  shippingDetails: {
+    name: String,
+    email: String,
+    address: String,
+    phone: String,
+  },
+  totalAmount: Number,
+  promoCodeUsed: String,
+  discountAmount: Number,
+  date: { type: Date, default: Date.now },
+});
+
+const Category = mongoose.model("Category", {
+  name: { type: String, required: true },
+  subcategories: [{ type: String }],
+});
+
+const PromoCode = mongoose.model("PromoCode", {
+  code: { type: String, required: true, unique: true },
+  discountPercentage: { type: Number, required: true },
+  validUntil: { type: Date, required: true },
+  isActive: { type: Boolean, default: true },
+});
+
+const Product = mongoose.model("Product", {
+  id: { type: Number, required: true },
+  name: { type: String, required: true },
+  description: { type: String, required: true },
+  image: { type: String, required: true },
+  category: { type: String, required: true },
+  subcategory: { type: String },
+  type: { type: String },
+  new_price: { type: Number },
+  old_price: { type: Number },
+  inventoryCount: { type: Number, default: 0 },
+  date: { type: Date, default: Date.now },
+  available: { type: Boolean, default: true },
+});
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "your-email@gmail.com",
+    pass: "your-email-password",
+  },
+});
+
+app.post("/addreview", fetchuser, async (req, res) => {
+  try {
+    const { productId, rating, comment } = req.body;
+
+    const order = await Order.findOne({
+      userId: req.user.id,
+      "products.productId": productId,
+    });
+
+    if (!order) {
+      return res
+        .status(403)
+        .json({ error: "You must purchase this product to review it" });
+    }
+
+    const review = new Review({
+      userId: req.user.id,
+      productId,
+      rating,
+      comment,
+    });
+
+    await review.save();
+    res.json({ success: true, review });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/placeorder", fetchuser, async (req, res) => {
+  try {
+    const { products, shippingDetails, promoCode } = req.body;
+
+    let totalAmount = 0;
+    let discountAmount = 0;
+
+    for (let item of products) {
+      const product = await Product.findById(item.productId);
+      if (!product || product.inventoryCount < item.quantity) {
+        return res
+          .status(400)
+          .json({ error: `Insufficient inventory for ${product.name}` });
+      }
+      totalAmount += product.new_price * item.quantity;
+    }
+
+    if (promoCode) {
+      const validPromo = await PromoCode.findOne({
+        code: promoCode,
+        isActive: true,
+        validUntil: { $gt: new Date() },
+      });
+
+      if (validPromo) {
+        discountAmount = (totalAmount * validPromo.discountPercentage) / 100;
+        totalAmount -= discountAmount;
+      }
+    }
+
+    const order = new Order({
+      userId: req.user.id,
+      products,
+      shippingDetails,
+      totalAmount,
+      promoCodeUsed: promoCode,
+      discountAmount,
+    });
+
+    await order.save();
+
+    for (let item of products) {
+      await Product.findByIdAndUpdate(item.productId, {
+        $inc: { inventoryCount: -item.quantity },
+      });
+    }
+
+    const mailOptions = {
+      from: "your-email@gmail.com",
+      to: "admin@example.com",
+      subject: "New Order Placed",
+      text: `
+        New order details:
+        Customer: ${shippingDetails.name}
+        Email: ${shippingDetails.email}
+        Address: ${shippingDetails.address}
+        Phone: ${shippingDetails.phone}
+        Total Amount: ${totalAmount}
+      `,
+    };
+
+    transporter.sendMail(mailOptions);
+
+    res.json({ success: true, order });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/addcategory", async (req, res) => {
+  try {
+    const user = await Users.findById(req.user.id);
+    if (!user.isAdmin) {
+      return res
+        .status(403)
+        .json({ error: "You are not authorized to perform this action" });
+    }
+    const { name, subcategories } = req.body;
+    const category = new Category({ name, subcategories });
+    await category.save();
+    res.json({ success: true, category });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get("/categories", async (req, res) => {
+  try {
+    const categories = await Category.find();
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/addpromocode", async (req, res) => {
+  try {
+    const { code, discountPercentage, validUntil } = req.body;
+    const promoCode = new PromoCode({
+      code,
+      discountPercentage,
+      validUntil: new Date(validUntil),
+    });
+    await promoCode.save();
+    res.json({ success: true, promoCode });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/addproduct", async (req, res) => {
+  let products = await Product.find({});
+  let id = products.length > 0 ? products[products.length - 1].id + 1 : 1;
+
+  const product = new Product({
+    id,
+    name: req.body.name,
+    description: req.body.description,
+    image: req.body.image,
+    category: req.body.category,
+    subcategory: req.body.subcategory,
+    type: req.body.type,
+    new_price: req.body.new_price,
+    old_price: req.body.old_price,
+    inventoryCount: req.body.inventoryCount || 0,
+  });
+
+  await product.save();
+  res.json({ success: true, product });
+});
+
 app.listen(port, (error) => {
   if (!error) console.log("Server Running on port " + port);
   else console.log("Error : ", error);
