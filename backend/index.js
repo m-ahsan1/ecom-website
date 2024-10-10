@@ -404,12 +404,14 @@ app.post("/placeorder", fetchuser, async (req, res) => {
 
 app.post("/addcategory", async (req, res) => {
   try {
-    const user = await Users.findById(req.user.id);
-    if (!user.isAdmin) {
-      return res
-        .status(403)
-        .json({ error: "You are not authorized to perform this action" });
-    }
+    // console.log("user", req.user);
+    // const user = await Users.findById(req.user.id);
+    // if (!user.isAdmin) {
+    //   return res
+    //     .status(403)
+    //     .json({ error: "You are not authorized to perform this action" });
+    // }
+    console.log("req.body", req.body);
     const { name, subcategories } = req.body;
     const category = new Category({ name, subcategories });
     await category.save();
@@ -422,6 +424,7 @@ app.post("/addcategory", async (req, res) => {
 app.get("/categories", async (req, res) => {
   try {
     const categories = await Category.find();
+    console.log("Categories", categories);
     res.json(categories);
   } catch (error) {
     res.status(500).json({ error: error.message });
