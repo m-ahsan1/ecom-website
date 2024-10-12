@@ -40,6 +40,7 @@ const ShopCategory = (props) => {
     }
   }, [selectedSubCategory, allproducts, props.category]);
 
+
   const subCategories = {
     women: ["Sweaters", "Jackets & coats", "Shirts / blouse", "Jeans"],
     men: [
