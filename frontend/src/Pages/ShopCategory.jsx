@@ -5,9 +5,10 @@ import Item from "../Components/Item/Item";
 import { Link } from "react-router-dom";
 
 const ShopCategory = (props) => {
-  const [allproducts, setAllProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [selectedSubCategory, setSelectedSubCategory] = useState("");
+  const [error, setError] = useState(null); // To handle fetch errors
 
   const fetchInfo = () => {
     fetch("http://localhost:4000/allproducts")
@@ -15,6 +16,10 @@ const ShopCategory = (props) => {
       .then((data) => {
         setAllProducts(data);
         setFilteredProducts(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+        setError("Failed to load products. Please try again.");
       });
   };
 
@@ -26,7 +31,7 @@ const ShopCategory = (props) => {
     // Filter products based on the selected subcategory and main category
     if (selectedSubCategory) {
       setFilteredProducts(
-        allproducts.filter(
+        allProducts.filter(
           (item) =>
             item.category === props.category &&
             item.type === selectedSubCategory
@@ -35,11 +40,10 @@ const ShopCategory = (props) => {
     } else {
       // If no subcategory is selected, show all products in the category
       setFilteredProducts(
-        allproducts.filter((item) => item.category === props.category)
+        allProducts.filter((item) => item.category === props.category)
       );
     }
-  }, [selectedSubCategory, allproducts, props.category]);
-
+  }, [selectedSubCategory, allProducts, props.category]);
 
   const subCategories = {
     women: ["Sweaters", "Jackets & coats", "Shirts / blouse", "Jeans"],
@@ -50,11 +54,11 @@ const ShopCategory = (props) => {
       "Sweater",
       "Pant coats",
       "Shirwani",
-      "Eastren wear",
+      "Eastern wear",
     ],
     kid: [
       "Shirt",
-      "Pant & capry",
+      "Pant & capri",
       "Jackets & hoodie",
       "Sweatshirt",
       "Maxi dresses",
@@ -70,10 +74,11 @@ const ShopCategory = (props) => {
   return (
     <div className="shopcategory">
       <img src={props.banner} className="shopcategory-banner" alt="" />
+      {error && <p className="error-message">{error}</p>} {/* Display error */}
       <div className="shopcategory-indexSort">
         <p>
           <span>Showing 1 - {filteredProducts.length}</span> out of{" "}
-          {allproducts.length} Products
+          {allProducts.length} Products
         </p>
         <div className="">
           Sort by <span> </span>
@@ -83,7 +88,7 @@ const ShopCategory = (props) => {
             onChange={handleSubCategoryChange}
           >
             <option value="">All</option>
-            {subCategories[props.category].map((option, index) => (
+            {subCategories[props.category]?.map((option, index) => (
               <option key={index} value={option}>
                 {option}
               </option>
@@ -94,7 +99,7 @@ const ShopCategory = (props) => {
       <div className="shopcategory-products">
         {filteredProducts.map((item, i) => (
           <Item
-            id={item.id}
+            id={item._id} // Ensure id is properly mapped from backend
             key={i}
             name={item.name}
             image={item.image}

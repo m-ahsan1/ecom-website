@@ -56,14 +56,45 @@ const Navbar = () => {
           </Link>
           {menu === "shop" ? <hr /> : <></>}
         </li>
-        {categories.map((category, index) => (
+
+        <li
+          onClick={() => {
+            setMenu("mens");
+          }}
+        >
+          <Link to="/mens" style={{ textDecoration: "none" }}>
+            Men
+          </Link>
+          {menu === "mens" ? <hr /> : <></>}
+        </li>
+        <li
+          onClick={() => {
+            setMenu("womens");
+          }}
+        >
+          <Link to="/womens" style={{ textDecoration: "none" }}>
+            Women
+          </Link>
+          {menu === "womens" ? <hr /> : <></>}
+        </li>
+        <li
+          onClick={() => {
+            setMenu("kids");
+          }}
+        >
+          <Link to="/kids" style={{ textDecoration: "none" }}>
+            Kids
+          </Link>
+          {menu === "kids" ? <hr /> : <></>}
+        </li>
+        {/* {categories.map((category, index) => (
           <li key={index} onClick={() => setMenu(category.name)}>
             <Link to={`/${category.name}`} style={{ textDecoration: "none" }}>
               {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
             </Link>
             {menu === category.name ? <hr /> : <></>}
           </li>
-        ))}
+        ))} */}
       </ul>
       <div className="nav-login-cart">
         {localStorage.getItem("auth-token") ? (

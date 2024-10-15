@@ -66,7 +66,8 @@ const AddProduct = () => {
       .then((data) => {
         dataObj = data;
       });
-
+    console.log(dataObj);
+    console.log("In AddProduct: ", product);
     if (dataObj.success) {
       product.image = dataObj.image_url;
       await fetch(`${backend_url}/addproduct`, {

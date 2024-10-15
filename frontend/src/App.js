@@ -20,8 +20,12 @@ function App() {
 
   useEffect(() => {
     const fetchCategories = async () => {
-      const response = await axios.get(`${backend_url}/categories`);
-      setCategories(response.data);
+      try {
+        const response = await axios.get(`${backend_url}/categories`);
+        setCategories(response.data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
     };
 
     fetchCategories();
@@ -57,9 +61,7 @@ function App() {
               }
             />
           ))}
-          <Route path="/product" element={<Product />}>
-            <Route path=":productId" element={<Product />} />
-          </Route>
+          <Route path="/product/:productId" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/login" element={<LoginSignup />} />
         </Routes>

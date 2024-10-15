@@ -5,6 +5,7 @@ import AddProduct from "../Components/AddProduct/AddProduct";
 import { Route, Routes } from "react-router-dom";
 import ListProduct from "../Components/ListProduct/ListProduct";
 import AddCategory from "../Components/AddCategory/AddCategory";
+import AddPromoCode from "../Components/AddPromoCode/AddPromoCode";
 
 const Admin = () => {
   return (
@@ -14,6 +15,7 @@ const Admin = () => {
         <Route path="/addproduct" element={<AddProduct />} />
         <Route path="/listproduct" element={<ListProduct />} />
         <Route path="/addcategory" element={<AddCategory />} />
+        <Route path="/promocode" element={<AddPromoCode />} />
       </Routes>
     </div>
   );

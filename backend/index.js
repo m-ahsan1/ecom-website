@@ -43,14 +43,19 @@ app.use("/images", express.static("upload/images"));
 const fetchuser = async (req, res, next) => {
   const token = req.header("auth-token");
   if (!token) {
-    res.status(401).send({ errors: "Please authenticate using a valid token" });
+    return res
+      .status(401)
+      .send({ errors: "Please authenticate using a valid token" });
   }
+
   try {
     const data = jwt.verify(token, "secret_ecom");
     req.user = data.user;
-    next();
+    next(); // Proceed to the next middleware/route handler
   } catch (error) {
-    res.status(401).send({ errors: "Please authenticate using a valid token" });
+    return res
+      .status(401)
+      .send({ errors: "Please authenticate using a valid token" });
   }
 };
 
@@ -134,7 +139,7 @@ app.post("/signup", async (req, res) => {
 // endpoint for getting all products data
 app.get("/allproducts", async (req, res) => {
   let products = await Product.find({});
-  console.log("All Products");
+  console.log("Fetching All Products");
   res.send(products);
 });
 
@@ -165,7 +170,7 @@ app.post("/relatedproducts", async (req, res) => {
 
 // Create an endpoint for saving the product in cart
 app.post("/addtocart", fetchuser, async (req, res) => {
-  console.log("Add Cart");
+  console.log("Add Cart", req.body.itemId);
   let userData = await Users.findOne({ _id: req.user.id });
   userData.cartData[req.body.itemId] += 1;
   await Users.findOneAndUpdate(
@@ -199,16 +204,16 @@ app.post("/getcart", fetchuser, async (req, res) => {
 // Create an endpoint for adding products using admin panel
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
-  let id;
-  if (products.length > 0) {
-    let last_product_array = products.slice(-1);
-    let last_product = last_product_array[0];
-    id = last_product.id + 1;
-  } else {
-    id = 1;
-  }
+  //let id;
+  // if (products.length > 0) {
+  //   let last_product_array = products.slice(-1);
+  //   let last_product = last_product_array[0];
+  //   id = last_product.id + 1;
+  // } else {
+  //   id = 1;
+  // }
   const product = new Product({
-    id: id,
+    // id: id,
     name: req.body.name,
     description: req.body.description,
     image: req.body.image,
@@ -217,6 +222,7 @@ app.post("/addproduct", async (req, res) => {
     new_price: req.body.new_price,
     old_price: req.body.old_price,
   });
+  console.log("Product Added", product);
   await product.save();
   console.log("Saved");
   console.log(product, req.body);
@@ -282,7 +288,7 @@ const PromoCode = mongoose.model("PromoCode", {
 });
 
 const Product = mongoose.model("Product", {
-  id: { type: Number, required: true },
+  // id: { type: Number, required: true },
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
@@ -341,7 +347,10 @@ app.post("/placeorder", fetchuser, async (req, res) => {
     let discountAmount = 0;
 
     for (let item of products) {
+      console.log("item", item.productId);
+      // const productId = new mongoose.Types.ObjectId(item.productId);
       const product = await Product.findById(item.productId);
+
       if (!product || product.inventoryCount < item.quantity) {
         return res
           .status(400)
@@ -373,6 +382,7 @@ app.post("/placeorder", fetchuser, async (req, res) => {
     });
 
     await order.save();
+    console.log("Order Placed", order);
 
     for (let item of products) {
       await Product.findByIdAndUpdate(item.productId, {
@@ -382,7 +392,7 @@ app.post("/placeorder", fetchuser, async (req, res) => {
 
     const mailOptions = {
       from: "your-email@gmail.com",
-      to: "admin@example.com",
+      to: "ahsank0811@gmail.com",
       subject: "New Order Placed",
       text: `
         New order details:
@@ -411,7 +421,6 @@ app.post("/addcategory", async (req, res) => {
     //     .status(403)
     //     .json({ error: "You are not authorized to perform this action" });
     // }
-    console.log("req.body", req.body);
     const { name, subcategories } = req.body;
     const category = new Category({ name, subcategories });
     await category.save();
@@ -424,7 +433,7 @@ app.post("/addcategory", async (req, res) => {
 app.get("/categories", async (req, res) => {
   try {
     const categories = await Category.find();
-    console.log("Categories", categories);
+    console.log("Fetching Categories");
     res.json(categories);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -440,6 +449,7 @@ app.post("/addpromocode", async (req, res) => {
       validUntil: new Date(validUntil),
     });
     await promoCode.save();
+    console.log("Promo Code Added", promoCode);
     res.json({ success: true, promoCode });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -448,10 +458,10 @@ app.post("/addpromocode", async (req, res) => {
 
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
-  let id = products.length > 0 ? products[products.length - 1].id + 1 : 1;
+  //let id = products.length > 0 ? products[products.length - 1].id + 1 : 1;
 
   const product = new Product({
-    id,
+    //   id,
     name: req.body.name,
     description: req.body.description,
     image: req.body.image,
