@@ -38,6 +38,7 @@ const AddProduct = () => {
     type: "",
     new_price: "",
     old_price: "",
+    quantity: 0,
     availableSizes: [],
   });
 
@@ -193,6 +194,16 @@ const AddProduct = () => {
             </div>
           ))}
         </div>
+      </div>
+      <div className="addproduct-itemfield">
+        <p>Quantity</p>
+        <input
+          type="number"
+          name="quantity"
+          value={productDetails.quantity}
+          onChange={changeHandler}
+          placeholder="Type here"
+        />
       </div>
       <div className="addproduct-itemfield">
         <p>Product image</p>
