@@ -3,6 +3,7 @@ import "./Sidebar.css";
 import add_product_icon from "../Assets/Product_Cart.svg";
 import list_product_icon from "../Assets/Product_list_icon.svg";
 import plus from "../Assets/plus.svg";
+import promo from "../Assets/promocode.svg";
 import { Link } from "react-router-dom";
 
 const Sidebar = () => {
@@ -30,7 +31,7 @@ const Sidebar = () => {
 
       <Link to="/promocode" style={{ textDecoration: "none" }}>
         <div className="sidebar-item">
-          <img src={plus} alt="" style={{ height: "30px", width: "30px" }} />
+          <img src={promo} alt="" style={{ height: "30px", width: "30px" }} />
           <p>Promo Code</p>
         </div>
       </Link>
