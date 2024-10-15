@@ -25,8 +25,11 @@ const categories = {
   ],
 };
 
+const availableSizes = ["XS", "S", "M", "L", "XL", "XXL"];
+
 const AddProduct = () => {
   const [image, setImage] = useState(false);
+  const [sizes, setSizes] = useState([]);
   const [productDetails, setProductDetails] = useState({
     name: "",
     description: "",
@@ -35,6 +38,7 @@ const AddProduct = () => {
     type: "",
     new_price: "",
     old_price: "",
+    availableSizes: [],
   });
 
   const renderCategories = () => {
@@ -48,9 +52,20 @@ const AddProduct = () => {
     ));
   };
 
+  const handleSizeChange = (e) => {
+    const value = e.target.value;
+    if (!sizes.includes(value)) {
+      setSizes([...sizes, value]);
+    }
+  };
+
+  const removeSize = (sizeToRemove) => {
+    setSizes(sizes.filter((size) => size !== sizeToRemove));
+  };
+
   const AddProduct = async () => {
     let dataObj;
-    let product = productDetails;
+    let product = { ...productDetails, availableSizes: sizes };
 
     let formData = new FormData();
     formData.append("product", image);
@@ -66,8 +81,7 @@ const AddProduct = () => {
       .then((data) => {
         dataObj = data;
       });
-    console.log(dataObj);
-    console.log("In AddProduct: ", product);
+
     if (dataObj.success) {
       product.image = dataObj.image_url;
       await fetch(`${backend_url}/addproduct`, {
@@ -97,9 +111,7 @@ const AddProduct = () => {
           type="text"
           name="name"
           value={productDetails.name}
-          onChange={(e) => {
-            changeHandler(e);
-          }}
+          onChange={changeHandler}
           placeholder="Type here"
         />
       </div>
@@ -109,9 +121,7 @@ const AddProduct = () => {
           type="text"
           name="description"
           value={productDetails.description}
-          onChange={(e) => {
-            changeHandler(e);
-          }}
+          onChange={changeHandler}
           placeholder="Type here"
         />
       </div>
@@ -122,9 +132,7 @@ const AddProduct = () => {
             type="number"
             name="old_price"
             value={productDetails.old_price}
-            onChange={(e) => {
-              changeHandler(e);
-            }}
+            onChange={changeHandler}
             placeholder="Type here"
           />
         </div>
@@ -134,9 +142,7 @@ const AddProduct = () => {
             type="number"
             name="new_price"
             value={productDetails.new_price}
-            onChange={(e) => {
-              changeHandler(e);
-            }}
+            onChange={changeHandler}
             placeholder="Type here"
           />
         </div>
@@ -166,6 +172,29 @@ const AddProduct = () => {
         </select>
       </div>
       <div className="addproduct-itemfield">
+        <p>Available Sizes</p>
+        <select
+          className="add-product-selector"
+          onChange={handleSizeChange}
+          value=""
+        >
+          <option value="">Select Size</option>
+          {availableSizes.map((size, index) => (
+            <option key={index} value={size}>
+              {size}
+            </option>
+          ))}
+        </select>
+        <div className="selected-sizes">
+          {sizes.map((size, index) => (
+            <div key={index} className="size-tag">
+              {size}
+              <button onClick={() => removeSize(size)}>X</button>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="addproduct-itemfield">
         <p>Product image</p>
         <label htmlFor="file-input">
           <img
@@ -183,12 +212,7 @@ const AddProduct = () => {
           hidden
         />
       </div>
-      <button
-        className="addproduct-btn"
-        onClick={() => {
-          AddProduct();
-        }}
-      >
+      <button className="addproduct-btn" onClick={AddProduct}>
         ADD
       </button>
     </div>
