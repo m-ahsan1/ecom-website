@@ -36,33 +36,40 @@ const AddCategory = () => {
   }, []);
 
   return (
-    <div className="container">
+    <div className="addcategory-container">
+      <h1>Add New Categories</h1>
       <form
+        className="addcategory-form"
         onSubmit={(e) => {
           e.preventDefault();
           addCategory();
         }}
       >
         <input
+          className="addcategory-input"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="Category Name"
         />
         <input
+          className="addcategory-input"
           type="text"
           value={subcategories}
           onChange={(e) => setSubcategories(e.target.value)}
-          placeholder="Subcategories"
+          placeholder="Subcategories (comma separated)"
         />
-        <button type="submit">Add Category</button>
+        <button className="addcategory-button" type="submit">
+          Add Category
+        </button>
       </form>
-      <ul>
+
+      <ul className="category-list">
         {categories.map((category, index) => (
-          <>
-            <li key={index}>{category.name}</li>
-            <li key={index}>{category.subcategories}</li>
-          </>
+          <li key={index} className="category-item">
+            <span>{category.name}</span>
+            <span className="subcategory-item">{category.subcategories}</span>
+          </li>
         ))}
       </ul>
     </div>
