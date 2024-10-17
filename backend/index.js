@@ -288,7 +288,6 @@ const PromoCode = mongoose.model("PromoCode", {
 });
 
 const Product = mongoose.model("Product", {
-  // id: { type: Number, required: true },
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
@@ -298,6 +297,8 @@ const Product = mongoose.model("Product", {
   new_price: { type: Number },
   old_price: { type: Number },
   inventoryCount: { type: Number, default: 0 },
+  quantity: { type: Number, default: 0 },
+  productSize: [{ type: String }],
   date: { type: Date, default: Date.now },
   available: { type: Boolean, default: true },
 });
@@ -456,25 +457,62 @@ app.post("/addpromocode", async (req, res) => {
   }
 });
 
+app.get("/promocodes/active", async (req, res) => {
+  try {
+    const activePromoCodes = await PromoCode.find({
+      isActive: true,
+      validUntil: { $gt: new Date() }
+    });
+    
+    res.json({ success: true, promocodes: activePromoCodes });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post("/promocodes/disable/:id", async (req, res) => {
+  try {
+    const promoCode = await PromoCode.findByIdAndUpdate(
+      req.params.id,
+      { isActive: false },
+      { new: true }
+    );
+
+    if (!promoCode) {
+      return res.status(404).json({ error: "Promo code not found" });
+    }
+
+    res.json({ 
+      success: true, 
+      message: "Promo code disabled successfully",
+      promoCode 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post("/addproduct", async (req, res) => {
-  let products = await Product.find({});
-  //let id = products.length > 0 ? products[products.length - 1].id + 1 : 1;
+  try {
+    const product = new Product({
+      name: req.body.name,
+      description: req.body.description,
+      image: req.body.image,
+      category: req.body.category,
+      subcategory: req.body.subcategory,
+      type: req.body.type,
+      new_price: req.body.new_price,
+      old_price: req.body.old_price,
+      inventoryCount: req.body.inventoryCount || 0,
+      quantity: req.body.quantity || 0,
+      productSize: req.body.productSize || [],
+    });
 
-  const product = new Product({
-    //   id,
-    name: req.body.name,
-    description: req.body.description,
-    image: req.body.image,
-    category: req.body.category,
-    subcategory: req.body.subcategory,
-    type: req.body.type,
-    new_price: req.body.new_price,
-    old_price: req.body.old_price,
-    inventoryCount: req.body.inventoryCount || 0,
-  });
-
-  await product.save();
-  res.json({ success: true, product });
+    await product.save();
+    res.json({ success: true, product });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(port, (error) => {
