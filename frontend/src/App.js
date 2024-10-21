@@ -13,7 +13,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 export const backend_url = "http://localhost:4000";
-export const currency = "$";
+export const currency = "RS";
 
 function App() {
   const [categories, setCategories] = useState([]);

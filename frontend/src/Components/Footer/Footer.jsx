@@ -22,10 +22,9 @@ const Footer = () => {
       </ul>
       <div className="footer-social-icons">
         <div className="footer-icons-container">
-          <img src={instagram_icon} alt="" />
-        </div>
-        <div className="footer-icons-container">
-          <img src={pintrest_icon} alt="" />
+          <a href="https://www.instagram.com/kooglearden.7?igsh=MnVqeTJhOXdrdTl4">
+            <img src={instagram_icon} alt="" />
+          </a>
         </div>
         <div className="footer-icons-container">
           <img src={whatsapp_icon} alt="" />

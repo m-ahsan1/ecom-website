@@ -67,9 +67,22 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-right: 20%;
+}
+.customer-name {
+  display: flex;
+  gap: 1rem;
+}
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.checkbox b {
+  font-size: 12px;
 }
 .cartitems-shipping input {
-  padding: 5px 10px;
+  padding: 7px 10px;
   border-radius: 50px;
   border: none;
   outline: none;
@@ -164,5 +177,8 @@
   .cartitems-format-main {
     grid-template-columns: 0.5fr 3fr 0.5fr;
     gap: 10px;
+  }
+  .customer-name {
+    flex-direction: column;
   }
 }
