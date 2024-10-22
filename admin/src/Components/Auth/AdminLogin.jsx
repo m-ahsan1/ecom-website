@@ -1,7 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import "./AdminLogin.css";
 import { useNavigate } from "react-router-dom";
 
-function AdminLogin() {
+const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -13,7 +14,11 @@ function AdminLogin() {
   const handleLogin = () => {
     if (username === hardcodedUsername && password === hardcodedPassword) {
       setIsAuthenticated(true);
+      const sessionDuration = 30 * 60 * 1000; // 30 minutes in milliseconds
+      const expirationTime = new Date().getTime() + sessionDuration;
+
       localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("expirationTime", expirationTime);
       console.log("Logged in as admin");
       navigate("/admin");
     } else {
@@ -22,23 +27,29 @@ function AdminLogin() {
   };
 
   return (
-    <div>
-      <h2>Admin Login</h2>
-      <input
-        type="text"
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleLogin}>Login</button>
+    <div className="login-container">
+      <div className="login-box">
+        <h2>Admin Login</h2>
+        <form onSubmit={handleLogin}>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <input type="submit" value="Login" />
+        </form>
+      </div>
     </div>
   );
-}
+};
 
 export default AdminLogin;

@@ -14,10 +14,49 @@ function App() {
   // Check if user is authenticated on component mount
   useEffect(() => {
     const authStatus = localStorage.getItem("isAuthenticated");
-    if (authStatus === "true") {
+    const expirationTime = localStorage.getItem("expirationTime");
+    const currentTime = new Date().getTime();
+
+    // Check if the session is still valid based on expiration time
+    if (
+      authStatus === "true" &&
+      expirationTime &&
+      currentTime < expirationTime
+    ) {
       setIsAuthenticated(true);
+    } else {
+      // If session expired or user not authenticated, log out
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("expirationTime");
+      setIsAuthenticated(false);
     }
   }, []);
+
+  // useEffect(() => {
+  //   let idleTimeout;
+  //   const sessionDuration = 30 * 60 * 1000; // 30 minutes
+
+  //   const resetTimeout = () => {
+  //     clearTimeout(idleTimeout);
+  //     idleTimeout = setTimeout(() => {
+  //       localStorage.removeItem("isAuthenticated");
+  //       localStorage.removeItem("expirationTime");
+  //       setIsAuthenticated(false);
+  //       window.location.href = "/login"; // Redirect to login on timeout
+  //     }, sessionDuration);
+  //   };
+
+  //   window.onload = resetTimeout;
+  //   document.onmousemove = resetTimeout;
+  //   document.onkeydown = resetTimeout;
+
+  //   return () => {
+  //     clearTimeout(idleTimeout);
+  //     window.onload = null;
+  //     document.onmousemove = null;
+  //     document.onkeydown = null;
+  //   };
+  // }, []);
 
   return (
     <BrowserRouter>
