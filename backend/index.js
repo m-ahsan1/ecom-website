@@ -202,32 +202,33 @@ app.post("/getcart", fetchuser, async (req, res) => {
 });
 
 // Create an endpoint for adding products using admin panel
-app.post("/addproduct", async (req, res) => {
-  let products = await Product.find({});
-  //let id;
-  // if (products.length > 0) {
-  //   let last_product_array = products.slice(-1);
-  //   let last_product = last_product_array[0];
-  //   id = last_product.id + 1;
-  // } else {
-  //   id = 1;
-  // }
-  const product = new Product({
-    // id: id,
-    name: req.body.name,
-    description: req.body.description,
-    image: req.body.image,
-    category: req.body.category,
-    type: req.body.type,
-    new_price: req.body.new_price,
-    old_price: req.body.old_price,
-  });
-  console.log("Product Added", product);
-  await product.save();
-  console.log("Saved");
-  console.log(product, req.body);
-  res.json({ success: true, name: req.body.name });
-});
+// app.post("/addproduct", async (req, res) => {
+//   let products = await Product.find({});
+//   //let id;
+//   // if (products.length > 0) {
+//   //   let last_product_array = products.slice(-1);
+//   //   let last_product = last_product_array[0];
+//   //   id = last_product.id + 1;
+//   // } else {
+//   //   id = 1;
+//   // }
+//   const product = new Product({
+//     // id: id,
+//     name: req.body.name,
+//     description: req.body.description,
+//     image: req.body.image,
+//     category: req.body.category,
+//     type: req.body.type,
+//     new_price: req.body.new_price,
+//     old_price: req.body.old_price,
+
+//   });
+//   console.log("Product Added", product);
+//   await product.save();
+//   console.log("Saved");
+//   console.log(product, req.body);
+//   res.json({ success: true, name: req.body.name });
+// });
 
 app.post("/removeproduct", async (req, res) => {
   await Product.findOneAndDelete({ id: req.body.id });
@@ -358,6 +359,7 @@ app.post("/placeorder", fetchuser, async (req, res) => {
           .json({ error: `Insufficient inventory for ${product.name}` });
       }
       totalAmount += product.new_price * item.quantity;
+      console.log(`Actual Amount ${totalAmount}`);
     }
 
     if (promoCode) {
@@ -372,6 +374,7 @@ app.post("/placeorder", fetchuser, async (req, res) => {
         totalAmount -= discountAmount;
       }
     }
+    console.log("promo code amount " + totalAmount);
 
     const order = new Order({
       userId: req.user.id,
