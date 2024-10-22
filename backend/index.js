@@ -456,6 +456,29 @@ app.post("/addpromocode", async (req, res) => {
   }
 });
 
+//api to get all active promocodes
+app.get("/activepromocodes", async (req, res) => {
+  try {
+    const promoCodes = await PromoCode.find({
+      isActive: true,
+      validUntil: { $gt: new Date() },
+    });
+    res.json(promoCodes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+//api to delete promocode that gets the id from request
+app.post("/disablepromocode", async (req, res) => {
+  try {
+    await PromoCode.findByIdAndUpdate(req.body.id, { isActive: false });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post("/addproduct", async (req, res) => {
   let products = await Product.find({});
   //let id = products.length > 0 ? products[products.length - 1].id + 1 : 1;

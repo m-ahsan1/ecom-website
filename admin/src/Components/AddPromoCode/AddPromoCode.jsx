@@ -16,6 +16,7 @@ function AddPromoCode() {
     const fetchPromoCodes = async () => {
       try {
         const response = await axios.get(`${backend_url}/activepromocodes`);
+        console.log(response.data);
         setPromoCodes(response.data);
       } catch (error) {
         setError("Failed to fetch promo codes.");
@@ -55,6 +56,7 @@ function AddPromoCode() {
   // Disable a promo code
   const handleDisablePromoCode = async (promoCodeId) => {
     try {
+      console.log(promoCodeId);
       await axios.post(`${backend_url}/disablepromocode`, { id: promoCodeId });
       setPromoCodes(promoCodes.filter((promo) => promo._id !== promoCodeId));
     } catch (error) {
