@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React from "react";
 import "./Midcategory.css";
 import { Link } from "react-router-dom";
 import home from "../Assets/home.png";
@@ -6,56 +6,33 @@ import women from "../Assets/women.png";
 import men from "../Assets/men.png";
 import kid from "../Assets/kid.png";
 
-const midcategory = () => {
-  let [menu, setMenu] = useState("shop");
-  const menuRef = useRef();
+const Midcategory = () => {
   return (
-    <div className="categories">
-      <ul ref={menuRef} className="nav-menu">
-        <li
-          onClick={() => {
-            setMenu("shop");
-          }}
-        >
-          <Link to="/" style={{ textDecoration: "none" }}>
-            Shop
-          </Link>
-          {menu === "shop" ? <hr /> : <></>}
-        </li>
+    <div className="categories-container">
+      <h1>CATEGORIES</h1>
+      <div className="image-grid">
+        <Link to="/" className="image-container">
+          <img src={home} alt="Home" className="category-image" />
+          <div className="image-link">Home</div>
+        </Link>
 
-        <li
-          onClick={() => {
-            setMenu("mens");
-          }}
-        >
-          <Link to="/mens" style={{ textDecoration: "none" }}>
-            Men
-          </Link>
-          {menu === "mens" ? <hr /> : <></>}
-        </li>
-        <li
-          onClick={() => {
-            setMenu("womens");
-          }}
-        >
-          <Link to="/womens" style={{ textDecoration: "none" }}>
-            Women
-          </Link>
-          {menu === "womens" ? <hr /> : <></>}
-        </li>
-        <li
-          onClick={() => {
-            setMenu("kids");
-          }}
-        >
-          <Link to="/kids" style={{ textDecoration: "none" }}>
-            Kids
-          </Link>
-          {menu === "kids" ? <hr /> : <></>}
-        </li>
-      </ul>
+        <Link to="/womens" className="image-container">
+          <img src={women} alt="Women" className="category-image" />
+          <div className="image-link">Women</div>
+        </Link>
+
+        <Link to="/mens" className="image-container">
+          <img src={men} alt="Men" className="category-image" />
+          <div className="image-link">Men</div>
+        </Link>
+
+        <Link to="/kids" className="image-container">
+          <img src={kid} alt="Kid" className="category-image" />
+          <div className="image-link">Kids</div>
+        </Link>
+      </div>
     </div>
   );
 };
 
-export default midcategory;
+export default Midcategory;
