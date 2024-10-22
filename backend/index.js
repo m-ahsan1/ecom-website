@@ -515,6 +515,88 @@ app.post("/addproduct", async (req, res) => {
   }
 });
 
+const BannerSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const Banner = mongoose.model('Banner', BannerSchema);
+
+// Create a new banner
+app.post('/banners', async (req, res) => {
+  try {
+    const banner = new Banner(req.body);
+    await banner.save();
+    res.json({ success: true, banner });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+
+});
+
+// Get all banners
+app.get('/all/banners', async (req, res) => {
+  try {
+    const banners = await Banner.find();
+    console.log("Fetching Banners");
+
+    res.json({
+      message: 'success',
+      data: banners
+
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get a banner by ID
+app.get('/banners/:id', async (req, res) => {
+  try {
+    const banner = await Banner.findById(req.params.id);
+    if (!banner) return res.status(404).json({ message: 'Banner not found' });
+    res.json(banner);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update a banner by ID
+app.put('/banners/:id', async (req, res) => {
+  try {
+    const banner = await Banner.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!banner) return res.status(404).json({ message: 'Banner not found' });
+    res.json(banner);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete a banner by ID
+app.delete('/banners/:id', async (req, res) => {
+  try {
+    const banner = await Banner.findByIdAndDelete(req.params.id);
+    if (!banner) return res.status(404).json({ message: 'Banner not found' });
+    res.json({ message: 'Banner deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 app.listen(port, (error) => {
   if (!error) console.log("Server Running on port " + port);
   else console.log("Error : ", error);
