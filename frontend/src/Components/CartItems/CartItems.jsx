@@ -142,12 +142,20 @@ const CartItems = () => {
 
           <div className="cartitems-shipping">
             <h2>Shipping Details</h2>
-            <input
-              type="text"
-              name="name"
-              placeholder="Name"
-              onChange={handleInputChange}
-            />
+            <div class="customer-name">
+              <input
+                type="text"
+                Firstname="Firstname"
+                placeholder="Firstname"
+                onChange={handleInputChange}
+              />
+              <input
+                type="text"
+                lasttname="lastname"
+                placeholder="Lastname"
+                onChange={handleInputChange}
+              />
+            </div>
             <input
               type="email"
               name="email"
@@ -162,10 +170,31 @@ const CartItems = () => {
             />
             <input
               type="text"
+              city="city"
+              placeholder="city"
+              onChange={handleInputChange}
+            />
+            <input
+              type="text"
               name="phone"
               placeholder="Phone"
               onChange={handleInputChange}
             />
+            <input
+              type="text"
+              name="Add special note"
+              placeholder="Add special note"
+              onChange={handleInputChange}
+            />
+            <div class="checkbox">
+              <input
+                type="checkbox"
+                name="checkbox"
+                placeholder="Add special note"
+                onChange={handleInputChange}
+              />
+              <b>Save this information</b>
+            </div>
           </div>
 
           <button onClick={placeOrder}>PROCEED TO CHECKOUT</button>

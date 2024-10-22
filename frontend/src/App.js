@@ -5,15 +5,15 @@ import Cart from "./Pages/Cart";
 import Product from "./Pages/Product";
 import Footer from "./Components/Footer/Footer";
 import ShopCategory from "./Pages/ShopCategory";
-import women_banner from "./Components/Assets/banner_women.png";
-import men_banner from "./Components/Assets/banner_mens.png";
-import kid_banner from "./Components/Assets/banner_kids.png";
+import women_banner from "./Components/Assets/banner_women.jpeg";
+import men_banner from "./Components/Assets/banner_mens.jpeg";
+import kid_banner from "./Components/Assets/banner_kids.jpeg";
 import LoginSignup from "./Pages/LoginSignup";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
 export const backend_url = "http://localhost:4000";
-export const currency = "$";
+export const currency = "RS";
 
 function App() {
   const [categories, setCategories] = useState([]);

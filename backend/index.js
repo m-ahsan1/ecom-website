@@ -202,32 +202,33 @@ app.post("/getcart", fetchuser, async (req, res) => {
 });
 
 // Create an endpoint for adding products using admin panel
-app.post("/addproduct", async (req, res) => {
-  let products = await Product.find({});
-  //let id;
-  // if (products.length > 0) {
-  //   let last_product_array = products.slice(-1);
-  //   let last_product = last_product_array[0];
-  //   id = last_product.id + 1;
-  // } else {
-  //   id = 1;
-  // }
-  const product = new Product({
-    // id: id,
-    name: req.body.name,
-    description: req.body.description,
-    image: req.body.image,
-    category: req.body.category,
-    type: req.body.type,
-    new_price: req.body.new_price,
-    old_price: req.body.old_price,
-  });
-  console.log("Product Added", product);
-  await product.save();
-  console.log("Saved");
-  console.log(product, req.body);
-  res.json({ success: true, name: req.body.name });
-});
+// app.post("/addproduct", async (req, res) => {
+//   let products = await Product.find({});
+//   //let id;
+//   // if (products.length > 0) {
+//   //   let last_product_array = products.slice(-1);
+//   //   let last_product = last_product_array[0];
+//   //   id = last_product.id + 1;
+//   // } else {
+//   //   id = 1;
+//   // }
+//   const product = new Product({
+//     // id: id,
+//     name: req.body.name,
+//     description: req.body.description,
+//     image: req.body.image,
+//     category: req.body.category,
+//     type: req.body.type,
+//     new_price: req.body.new_price,
+//     old_price: req.body.old_price,
+
+//   });
+//   console.log("Product Added", product);
+//   await product.save();
+//   console.log("Saved");
+//   console.log(product, req.body);
+//   res.json({ success: true, name: req.body.name });
+// });
 
 app.post("/removeproduct", async (req, res) => {
   await Product.findOneAndDelete({ id: req.body.id });
@@ -288,7 +289,6 @@ const PromoCode = mongoose.model("PromoCode", {
 });
 
 const Product = mongoose.model("Product", {
-  // id: { type: Number, required: true },
   name: { type: String, required: true },
   description: { type: String, required: true },
   image: { type: String, required: true },
@@ -298,6 +298,8 @@ const Product = mongoose.model("Product", {
   new_price: { type: Number },
   old_price: { type: Number },
   inventoryCount: { type: Number, default: 0 },
+  quantity: { type: Number, default: 0 },
+  productSize: [{ type: String }],
   date: { type: Date, default: Date.now },
   available: { type: Boolean, default: true },
 });
@@ -357,6 +359,7 @@ app.post("/placeorder", fetchuser, async (req, res) => {
           .json({ error: `Insufficient inventory for ${product.name}` });
       }
       totalAmount += product.new_price * item.quantity;
+      console.log(`Actual Amount ${totalAmount}`);
     }
 
     if (promoCode) {
@@ -371,6 +374,7 @@ app.post("/placeorder", fetchuser, async (req, res) => {
         totalAmount -= discountAmount;
       }
     }
+    console.log("promo code amount " + totalAmount);
 
     const order = new Order({
       userId: req.user.id,
@@ -480,24 +484,108 @@ app.post("/disablepromocode", async (req, res) => {
 });
 
 app.post("/addproduct", async (req, res) => {
-  let products = await Product.find({});
-  //let id = products.length > 0 ? products[products.length - 1].id + 1 : 1;
+  try {
+    const product = new Product({
+      name: req.body.name,
+      description: req.body.description,
+      image: req.body.image,
+      category: req.body.category,
+      subcategory: req.body.subcategory,
+      type: req.body.type,
+      new_price: req.body.new_price,
+      old_price: req.body.old_price,
+      inventoryCount: req.body.inventoryCount || 0,
+      quantity: req.body.quantity || 0,
+      productSize: req.body.productSize || [],
+    });
 
-  const product = new Product({
-    //   id,
-    name: req.body.name,
-    description: req.body.description,
-    image: req.body.image,
-    category: req.body.category,
-    subcategory: req.body.subcategory,
-    type: req.body.type,
-    new_price: req.body.new_price,
-    old_price: req.body.old_price,
-    inventoryCount: req.body.inventoryCount || 0,
-  });
+    await product.save();
+    res.json({ success: true, product });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-  await product.save();
-  res.json({ success: true, product });
+const BannerSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
+  imageUrl: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const Banner = mongoose.model("Banner", BannerSchema);
+
+// Create a new banner
+app.post("/banners", async (req, res) => {
+  try {
+    const banner = new Banner(req.body);
+    await banner.save();
+    res.json({ success: true, banner });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Get all banners
+app.get("/all/banners", async (req, res) => {
+  try {
+    const banners = await Banner.find();
+    console.log("Fetching Banners");
+
+    res.json({
+      message: "success",
+      data: banners,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Get a banner by ID
+app.get("/banners/:id", async (req, res) => {
+  try {
+    const banner = await Banner.findById(req.params.id);
+    if (!banner) return res.status(404).json({ message: "Banner not found" });
+    res.json(banner);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update a banner by ID
+app.put("/banners/:id", async (req, res) => {
+  try {
+    const banner = await Banner.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!banner) return res.status(404).json({ message: "Banner not found" });
+    res.json(banner);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete a banner by ID
+app.delete("/banners/:id", async (req, res) => {
+  try {
+    const banner = await Banner.findByIdAndDelete(req.params.id);
+    if (!banner) return res.status(404).json({ message: "Banner not found" });
+    res.json({ message: "Banner deleted" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 app.listen(port, (error) => {

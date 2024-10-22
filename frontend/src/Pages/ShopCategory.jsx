@@ -80,8 +80,8 @@ const ShopCategory = (props) => {
           <span>Showing 1 - {filteredProducts.length}</span> out of{" "}
           {allProducts.length} Products
         </p>
-        <div className="">
-          Sort by <span> </span>
+        <div className="categorysort">
+          <span> Sort by</span>
           <select
             className="shopcategory-sort"
             value={selectedSubCategory}

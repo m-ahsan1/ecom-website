@@ -5,10 +5,17 @@
   padding: 15px 60px;
   box-shadow: 0 1px 3px -2px black;
   margin-bottom: 1px;
-  background: white;
+  background-color: #d2b48c;
 }
 .nav-logo {
-  width: 200px;
+  width: 60px;
+}
+.navbar p {
+  color: #171717;
+  font-size: 28px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 .nav-profile {
   width: 75px;
