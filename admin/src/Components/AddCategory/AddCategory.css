@@ -1,3 +1,4 @@
+/* Main container */
 .container {
   display: flex;
   flex-direction: column;
@@ -8,6 +9,7 @@
   box-sizing: border-box;
 }
 
+/* Styling the form */
 form {
   display: flex;
   flex-direction: column;
@@ -16,11 +18,13 @@ form {
   margin-bottom: 20px;
 }
 
+/* Input fields styling */
 form input {
   padding: 10px;
   font-size: 16px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  width: 200px;
 }
 
 form button {
@@ -37,16 +41,45 @@ form button:hover {
   background-color: #0056b3;
 }
 
+/* Styling for the category list */
 ul {
   list-style-type: none;
   padding: 0;
+  width: 300px;
 }
 
+/* Styling for each category */
 ul li {
   background-color: #f8f9fa;
-  padding: 10px;
+  padding: 15px;
   border-radius: 5px;
   margin-bottom: 10px;
-  width: 200px;
-  text-align: center;
+  text-align: left;
+  font-weight: bold;
+}
+
+/* Styling for the subcategory list */
+ul ul {
+  margin-top: 10px;
+  padding-left: 20px;
+}
+
+/* Styling for subcategories */
+ul ul li {
+  background-color: #e9ecef;
+  padding: 8px;
+  margin-bottom: 5px;
+  font-weight: normal;
+  border-radius: 3px;
+}
+
+/* Responsive form and list */
+@media (max-width: 480px) {
+  form input {
+    width: 100%;
+  }
+
+  ul {
+    width: 100%;
+  }
 }

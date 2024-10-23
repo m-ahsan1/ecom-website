@@ -12,7 +12,7 @@ const AddCategory = () => {
     try {
       const response = await axios.post(`${backend_url}/addcategory`, {
         name,
-        subcategories,
+        subcategories: subcategories.split(",").map((subcat) => subcat.trim()),
       });
       if (response.data.success) {
         setCategories([...categories, response.data.category]);
@@ -53,16 +53,26 @@ const AddCategory = () => {
           type="text"
           value={subcategories}
           onChange={(e) => setSubcategories(e.target.value)}
-          placeholder="Subcategories"
+          placeholder="Subcategories (comma-separated)"
         />
         <button type="submit">Add Category</button>
       </form>
+
       <ul>
         {categories.map((category, index) => (
-          <>
-            <li key={index}>{category.name}</li>
-            <li key={index}>{category.subcategories}</li>
-          </>
+          <li key={index}>
+            <strong>Category: </strong>
+            {category.name}
+            <ul>
+              {category.subcategories && category.subcategories.length > 0 ? (
+                category.subcategories.map((subcat, i) => (
+                  <li key={i}>{subcat}</li>
+                ))
+              ) : (
+                <li>No subcategories</li>
+              )}
+            </ul>
+          </li>
         ))}
       </ul>
     </div>
